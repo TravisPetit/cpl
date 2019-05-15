@@ -82,7 +82,21 @@ class TestCPL(unittest.TestCase):
 
 
     def test_DNF(self):
-        self.assertTrue(True) #TODO
+        for i in range(len(literals)):
+            for j in range(len(literals)):
+                for k in range(len(literals)):
+                    li = literals[i]
+                    lj = literals[k]
+                    lk = literals[j]
+                    dnf1 = (li*lj*lk) + (li*lk) + li
+                    dnf2 = (lk*li) + li + (lj*lk*li)
+                    self.assertEqual(dnf1, dnf2)
+                    self.assertEqual(hash(dnf1), hash(dnf2))
+
+                    assignemnts = fun.possible_interpretations(i,j,k)
+                    for assignemnt in assignemnts:
+                        self.assertEqual(assignemnt.evaluate(dnf1), assignemnt.evaluate(dnf2))
+
 
 
 

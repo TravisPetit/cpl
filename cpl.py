@@ -19,12 +19,18 @@ class Proposition:
             self.__indx = Proposition.class_indx
             Proposition.class_indx += 1
 
+        self.__indexes_involved = (self.__indx,)
+
     def __repr__(self):
         return "x{}".format(str(self.__indx).translate(Proposition.SUB))
 
     @property
     def index(self):
         return self.__indx
+
+    @property
+    def indexes_involved(self):
+        return self.__indexes_involved
 
     def __eq__(self, other):
         return self.__indx == other.index
@@ -65,6 +71,10 @@ class Literal:
     @property
     def negated(self):
         return self.__negated
+
+    @property
+    def indexes_involved(self):
+        return self.proposition.indexes_involved
 
     def __eq__(self, other):
         return self.__proposition == other.proposition and self.__negated == other.negated
@@ -175,7 +185,17 @@ class Conjunction:
     def __add__(self, other):
         if isinstance(other, Conjunction):
             return DNF(self, other)
-        raise Exception("TODO: Addition not defined")
+
+        if isinstance(other, DNF):
+            l = list(other.conjunctions)
+            l.append(self)
+            return DNF(*l)
+
+        if isinstance(other, Literal):
+            return self + Conjunction(other)
+
+        raise Exception("TODO: conjuntion + {}".format(type(other)))
+
 
     def __hash__(self):
         return hash(self.__literals)
@@ -230,7 +250,7 @@ class DNF:
     def __hash__(self):
         return hash(self.__conjunctions)
 
-    def __eq__(self):
+    def __eq__(self, other):
         return self.__conjunctions == other.conjunctions
 
 
@@ -262,7 +282,14 @@ class DNF:
             c.append(con)
             return DNF(*c)
 
-        raise Exception("TODO DNF")
+        if isinstance(other, Proposition):
+            return self + other.to_literal()
+
+        if isinstance(other, Conjunction):
+            return other + self
+
+
+        raise Exception("TODO DNF {}".format(type(other)))
 
 
 

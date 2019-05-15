@@ -17,3 +17,12 @@ def possible_interpretations(*indexes):
         interpretations.append(inter)
 
     return interpretations
+
+
+
+def statisfiable(formula):
+    for interpretation in possible_interpretations(*formula.indexes_involved):
+        if interpretation.evaluate(formula):
+            return True, interpretation
+
+    return False, cpl.Interpretation({})
