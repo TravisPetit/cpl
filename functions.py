@@ -1,6 +1,7 @@
 import cpl
 
 def possible_interpretations(*indexes):
+    indexes = set(indexes)
     propositions = [cpl.Proposition(index=indx) for indx in indexes]
     propositions.sort()
     interpretations = []
@@ -10,12 +11,6 @@ def possible_interpretations(*indexes):
         dict_ = {}
 
         for j in range(len(indexes)):
-            # if i is divisible by 2, 4, 8, 16, ... that's wrong! you should check whether the digit at position * is a 0 or 1!
-            #if i % ( 2 ** (j+1) ) == 0:
-            #    dict_[propositions[j]] = False
-            #else:
-            #    dict_[propositions[j]] = True
-            #dict_[propositions[j]] = bool(i & (2 ** (j+1)))
             dict_[propositions[j]] = bool(i & (2 ** j))
 
         inter = cpl.Interpretation(dict_)

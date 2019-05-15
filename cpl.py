@@ -109,6 +109,11 @@ class Literal:
     def __neg__(self):
         return Literal(self.__proposition, not self.__negated)
 
+    def __add__(self, other):
+        if isinstance(other, Literal):
+            return Conjunction(self) + Conjunction(other)
+        raise Exception("TODO")
+
 
 class Conjunction:
 
@@ -175,6 +180,22 @@ class Conjunction:
     def __hash__(self):
         return hash(self.__literals)
 
+
+    def __neg__(self):
+
+        if len(self.__literals) == 0:
+            raise Exception("Empty conjunction")
+
+        if len(self.__literals) == 1:
+            return (-self.__literals[0])
+
+        c = (-self.__literals[0])
+        for i in range(1, len(self.__literals)):
+            c = c + (-self.__literals[i])
+
+        return c
+
+
 class DNF:
 
     def __init__(self, *conjunctions):
@@ -228,6 +249,20 @@ class DNF:
 
     def __gt__(self, other):
         return not self.__lt__(self, other)
+
+    def __add__(self, other):
+        if isinstance(other, DNF):
+            c = set(self.__conjunctions).union(set(other.conjunctions))
+            c = list(c)
+            return DNF(*c)
+
+        if isinstance(other, Literal):
+            con = Conjunction(other)
+            c = list(self.__conjunctions)
+            c.append(con)
+            return DNF(*c)
+
+        raise Exception("TODO DNF")
 
 
 

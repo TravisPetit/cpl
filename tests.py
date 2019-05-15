@@ -1,5 +1,6 @@
 import unittest
 import cpl
+import functions as fun
 
 class TestCPL(unittest.TestCase):
 
@@ -60,6 +61,28 @@ class TestCPL(unittest.TestCase):
                 self.assertGreater(literals[j], literals[i])
                 self.assertGreater(cpl.Literal(propositions[j], not literals[j].negated), literals[i])
 
+
+    def test_conjuntions(self):
+        for i in range(len(literals)):
+            for j in range(len(literals)):
+
+                self.assertEqual(literals[i] * literals[j], literals[j] * literals[i])
+                self.assertEqual(hash(literals[i] * literals[j]), hash(literals[j] * literals[i]))
+
+                for k in range(len(literals)):
+                    p1 = literals[i] * literals[j] * literals[k]
+                    p2 = literals[k] * literals[i] * literals[j]
+
+                    self.assertEqual(p1, p2)
+                    self.assertEqual(hash(p1), hash(p2))
+
+                    assignemnts = fun.possible_interpretations(i,j,k)
+                    for assignemnt in assignemnts:
+                        self.assertEqual(assignemnt.evaluate(p1), assignemnt.evaluate(p2))
+
+
+    def test_DNF(self):
+        self.assertTrue(True) #TODO
 
 
 
