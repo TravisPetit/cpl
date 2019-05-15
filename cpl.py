@@ -152,6 +152,11 @@ class Conjunction:
 
         raise MulException(self, other)
 
+    def __add__(self, other):
+        if isinstance(other, Conjunction):
+            return DNF(self, other)
+        raise Exception("TODO: Addition not defined")
+
     def __hash__(self):
         return hash(self.__literals)
 
@@ -178,16 +183,63 @@ class DNF:
     def __hash__(self):
         return hash(self.__conjunctions)
 
+    def __eq__(self):
+        return self.__conjunctions == other.conjunctions
 
 
-class Valuation:
+    def __lt__(self, other):
+        if len(self.__conjunctions) < other.conjunctions:
+            return True
 
-    def __init__(self, dict_):
-        self.__dict_ = dict_
+        if len(self.__conjunctions) > other.conjunctions:
+            return False
 
-    def evaluate(obj):
+        for i in range(self.__conjunctions):
+            if self.__conjunctions[i] == other.conjunctions[i]:
+                continue
+
+            return self.__conjunctions[i] < other.conjunctions[i]
+
+    def __gt__(self, other):
+        return not self.__lt__(self, other)
+
+
+
+
+class Interpretation(dict):
+    def __hash__(self):
+        return hash(frozenset(self.items()))
+
+    def _immutable(self, *args, **kws):
+        raise TypeError('object is immutable')
+
+    __setitem__ = _immutable
+    __delitem__ = _immutable
+    clear       = _immutable
+    update      = _immutable
+    setdefault  = _immutable
+    pop         = _immutable
+    popitem     = _immutable
+
+    def evaluate(self, obj):
         if isinstance(obj, Proposition):
-            if obj not in self.__dict_:
-                raise Exception("the proposition is not defined")
-            return self.__dict_[obj]
+            return self[obj]
 
+        if isinstance(obj, Literal):
+            if obj.negated:
+                return not self[obj.proposition]
+            return self[obj.proposition]
+
+        if isinstance(obj, Conjunction):
+            for literal in obj.literals:
+                if not self.evaluate(literal):
+                    return False
+            return True
+
+        if isinstance(obj, DNF):
+            for conjunction in obj.conjunctions:
+                if self.evaluate(conjunction):
+                    return True
+            return False
+
+        raise Exception("Bad input")
