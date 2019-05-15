@@ -111,6 +111,11 @@ class Conjunction:
         self.__literals.sort()
         self.__literals = tuple(self.__literals)
 
+        self.__indexes_involved = set(literal.proposition.index for literal in self.__literals)
+        self.__indexes_involved = list(self.__indexes_involved)
+        self.__indexes_involved.sort()
+        self.__indexes_involved = tuple(self.__indexes_involved)
+
     def __repr__(self):
         s = ""
         for literal in self.__literals:
@@ -136,6 +141,10 @@ class Conjunction:
     @property
     def literals(self):
         return self.__literals
+
+    @property
+    def indexes_involved(self):
+        return self.__indexes_involved
 
     def __eq__(self, other):
         return self.__literals == other.literals
@@ -167,9 +176,20 @@ class DNF:
         self.__conjunctions.sort()
         self.__conjunctions = tuple(self.__conjunctions)
 
+        self.__indexes_involved = set()
+        for conjunction in self.__conjunctions:
+            self.__indexes_involved = self.__indexes_involved.union(set(conjunction.indexes_involved))
+        self.__indexes_involved = list(self.__indexes_involved)
+        self.__indexes_involved.sort()
+        self.__indexes_involved = tuple(self.__indexes_involved)
+
     @property
     def conjunctions(self):
         return self.__conjunctions
+
+    @property
+    def indexes_involved(self):
+        return self.__indexes_involved
 
     def __str__(self):
         s = ""
@@ -242,4 +262,4 @@ class Interpretation(dict):
                     return True
             return False
 
-        raise Exception("Bad input")
+        raise Exception("Bad input") #TODO
