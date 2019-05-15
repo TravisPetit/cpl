@@ -44,6 +44,9 @@ class Proposition:
     def __mul__(self, other):
         return self.to_literal(negated=False) * other
 
+    def __neg__(self):
+        return self.to_literal(negated=True)
+
     @staticmethod
     def reset():
         Proposition.class_indx = 0
@@ -102,6 +105,9 @@ class Literal:
             return other * self
 
         raise MulException(self, other)
+
+    def __neg__(self):
+        return Literal(self.__proposition, not self.__negated)
 
 
 class Conjunction:
@@ -263,3 +269,11 @@ class Interpretation(dict):
             return False
 
         raise Exception("Bad input") #TODO
+
+    def __repr__(self):
+        s = ""
+        for item in sorted(self.items()):
+            prop = item[0]
+            val = item[1]
+            s += "{} -> {}\n".format(prop, val)
+        return s.strip()
