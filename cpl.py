@@ -250,6 +250,13 @@ class DNF:
     def __hash__(self):
         return hash(self.__conjunctions)
 
+    def __neg__(self):
+        if len(self.__conjunctions) == 1:
+            return self.__conjunctions[0].negated
+
+        #c = self.__conjunctions[0].negated
+        #for i in range(1,len(self.__conjunctions)):
+
     def __eq__(self, other):
         return self.__conjunctions == other.conjunctions
 
@@ -288,8 +295,19 @@ class DNF:
         if isinstance(other, Conjunction):
             return other + self
 
-
         raise Exception("TODO DNF {}".format(type(other)))
+
+
+    def __mul__(self, other):
+
+        if isinstance(other, Literal) or isinstance(other, Proposition):
+            list_ = []
+            for conjunction in self.__conjunctions:
+                list_.append(conjunction * other)
+            return DNF(*list_)
+
+
+        raise MulException(self, other)
 
 
 
