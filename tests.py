@@ -97,17 +97,29 @@ class TestCPL(unittest.TestCase):
                     for assignemnt in assignemnts:
                         self.assertEqual(assignemnt.evaluate(dnf1), assignemnt.evaluate(dnf2))
 
+
     def test_DNF_eq(self):
         for i in range(10):
             x = fun.random_formula()
             y = fun.random_formula()
             xpy = x + y
             xty = x * y
-            l = [i for i in range(len(max(xpy.indexes_involved, xty.indexes_involved)))]
-            for interpretation in fun.possible_interpretations(*l):
-                self.assertEqual(interpretation.evaluate(x) or interpretation.evaluate(y), interpretation.evaluate(xpy))
-                self.assertEqual(interpretation.evaluate(x) and interpretation.evaluate(y), interpretation.evaluate(xty))
+            l = [i for i in range(max(xty.indexes_involved[-1], xpy.indexes_involved[-1])+1)]
 
+            for interpretation in fun.possible_interpretations(*l):
+                ix = interpretation.evaluate(x)
+                iy = interpretation.evaluate(y)
+                self.assertEqual(ix or iy, interpretation.evaluate(xpy))
+                self.assertEqual(ix and iy, interpretation.evaluate(xty))
+
+
+    def test_DNF_neg(self):
+        for i in range(10):
+            x = fun.random_formula()
+            mx = -x
+            l = [i for i in range(x.indexes_involved[-1]+1)]
+            for interpretation in fun.possible_interpretations(*l):
+                self.assertEqual(interpretation.evaluate(x), not interpretation.evaluate(mx))
 
 
 

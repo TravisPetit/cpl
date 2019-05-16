@@ -1,5 +1,11 @@
 import cpl
-from random import random
+from random import random, randint
+
+HA_sum = lambda x,y : (-x)*y + x*(-y)
+HA_cout = lambda x,y : x*y
+
+FA_sum = lambda x,y,cin : (-x)*(-y)*cin + (-x)*y*(-cin) + x*(-y)*(-cin) + x*y*cin
+FA_cout = lambda x,y,cin : y*cin + x*cin + x*y
 
 def possible_interpretations(*indexes):
     indexes = set(indexes)
@@ -7,7 +13,6 @@ def possible_interpretations(*indexes):
     propositions.sort()
     interpretations = []
 
-    # count to 2^n
     for i in range(2**len(indexes)):
         dict_ = {}
 
@@ -29,9 +34,9 @@ def statisfiable(formula):
     return False, cpl.Interpretation({})
 
 
-def random_formula(chance=0.75):
+def random_formula(chance=0.70):
     counter = 0
-    x = cpl.Proposition(index=counter)
+    x = cpl.Proposition(index=randint(0, counter+1))
 
     if random() < 0.5:
         x = -x

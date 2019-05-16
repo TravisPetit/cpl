@@ -197,6 +197,9 @@ class Conjunction:
             s = list(other.__literals) + list(self.__literals)
             return Conjunction(*s)
 
+        if isinstance(other, DNF):
+            return other * self
+
         raise MulException(self, other)
 
     def __add__(self, other):
@@ -271,11 +274,11 @@ class DNF:
         return hash(self.__conjunctions)
 
     def __neg__(self):
-        if len(self.__conjunctions) == 1:
-            return self.__conjunctions[0].negated
-
-        #c = self.__conjunctions[0].negated
-        #for i in range(1,len(self.__conjunctions)):
+        list_ = [-con for con in self.__conjunctions]
+        x = list_[0]
+        for i in range(1, len(list_)):
+            x = x * list_[i]
+        return x
 
     def __eq__(self, other):
         return self.__conjunctions == other.conjunctions
