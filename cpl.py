@@ -47,6 +47,9 @@ class Proposition:
     def to_literal(self, negated=False):
         return Literal(self, negated)
 
+    def __add__(self, other):
+        return self.to_literal(negated=False) + other
+
     def __mul__(self, other):
         return self.to_literal(negated=False) * other
 
@@ -111,8 +114,11 @@ class Literal:
         if isinstance(other, Proposition):
             return Conjunction(self, Literal(other, negated=False))
 
-        if isinstance(other, Conjunction):
+        if isinstance(other, DNF):
             return other * self
+
+        #if isinstance(other, Conjunction):
+        #    return other * self
 
         raise MulException(self, other)
 
@@ -122,6 +128,13 @@ class Literal:
     def __add__(self, other):
         if isinstance(other, Literal):
             return Conjunction(self) + Conjunction(other)
+
+        if isinstance(other, Proposition):
+            return Conjunction(self) + Conjunction(other.to_literal())
+
+        if isinstance(other, Conjunction) or isinstance(other, DNF):
+            return other + self
+
         raise Exception("TODO")
 
 
@@ -180,9 +193,16 @@ class Conjunction:
             lit = other.to_literal(negated=False)
             return self * lit
 
+        if isinstance(other, Conjunction):
+            s = list(other.__literals) + list(self.__literals)
+            return Conjunction(*s)
+
         raise MulException(self, other)
 
     def __add__(self, other):
+        if isinstance(other, Proposition):
+            return self + Conjunction(other.to_literal())
+
         if isinstance(other, Conjunction):
             return DNF(self, other)
 
@@ -300,11 +320,24 @@ class DNF:
 
     def __mul__(self, other):
 
-        if isinstance(other, Literal) or isinstance(other, Proposition):
+        if isinstance(other, Literal) or isinstance(other, Proposition) or isinstance(other, Conjunction):
             list_ = []
             for conjunction in self.__conjunctions:
                 list_.append(conjunction * other)
             return DNF(*list_)
+
+        if isinstance(other, DNF):
+            list_ = []
+            for my_conjunction in self.__conjunctions:
+                for your_conjunction in other.__conjunctions:
+                    list_.append(my_conjunction * your_conjunction)
+
+            return DNF(*list_)
+
+        #if isinstance(other, Conjunction):
+        #    list_ = []
+        #    for literals in other.__literals:
+        #        list_.append(self * literal)
 
 
         raise MulException(self, other)

@@ -1,4 +1,5 @@
 import cpl
+from random import random
 
 def possible_interpretations(*indexes):
     indexes = set(indexes)
@@ -26,3 +27,25 @@ def statisfiable(formula):
             return True, interpretation
 
     return False, cpl.Interpretation({})
+
+
+def random_formula(chance=0.75):
+    counter = 0
+    x = cpl.Proposition(index=counter)
+
+    if random() < 0.5:
+        x = -x
+
+    while (random() < chance):
+        counter += 1
+        y = cpl.Proposition(index=counter)
+
+        if random() < 0.5:
+            y = -y
+
+        if random() < 0.5:
+            x = x + y
+        else:
+            x = x * y
+
+    return x
