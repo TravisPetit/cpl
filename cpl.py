@@ -391,5 +391,5 @@ class Interpretation(dict):
         for item in sorted(self.items()):
             prop = item[0]
             val = item[1]
-            s += "{} -> {}\n".format(prop, val)
+            s += "{} -> {}\n".format(prop, int(val))
         return s.strip()
