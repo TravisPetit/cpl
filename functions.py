@@ -116,3 +116,26 @@ def formula_interpretation_to_number(interpretation, formulas):
         if interpretation.evaluate(formulas[i]):
             num += 2 ** i
     return num
+
+
+def minterms(formula):
+    interpretations = possible_interpretations(*formula.indexes_involved)
+    terms = []
+    for i in range(len(interpretations)):
+        if interpretations[i].evaluate(formula):
+            terms.append(i)
+
+    return terms
+
+
+def bitcount(n):
+    count = 0
+    while n > 0:
+        count = count + 1
+        n = n & (n-1)
+    return count
+
+#QuineMcClouskey
+def simplify(formula):
+    term_to_binary = {term : bitcount(term) for term in minterms(formula)}
+    #print (term_to_binary)
