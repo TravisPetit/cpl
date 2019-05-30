@@ -387,9 +387,10 @@ class Interpretation(dict):
         raise Exception("Bad input") #TODO
 
     def __repr__(self):
-        s = ""
+        s = "\n"
         for item in sorted(self.items()):
             prop = item[0]
             val = item[1]
             s += "{} -> {}\n".format(prop, int(val))
-        return s.strip()
+        #return "\n" + s.strip()
+        return s
