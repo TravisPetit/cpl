@@ -126,6 +126,9 @@ class Literal:
         return Literal(self.__proposition, not self.__negated)
 
     def __add__(self, other):
+        if isinstance(other, int):
+            if other == 0:
+                return self
         if isinstance(other, Literal):
             return Conjunction(self) + Conjunction(other)
 
@@ -203,6 +206,9 @@ class Conjunction:
         raise MulException(self, other)
 
     def __add__(self, other):
+        if isinstance(other, int):
+            if other == 0:
+                return self
         if isinstance(other, Proposition):
             return self + Conjunction(other.to_literal())
 
