@@ -5,15 +5,14 @@ import math
 
 def guess(n):
     x = [cpl.Proposition(index=i) for i in range(n+1)]
-    q = lambda i : int(i+1 < n)
     res = 0
-    for i in range(0, int(math.ceil(n))):
-        for j in range(0, q(i)+1):
-            res = x[2*i+j]*x[2*i+j+1] + res
-            for k in range(0,n-j-3-i+1):
-                if k > n-j-3-i:
-                    continue
-                res = x[2*k+j+3] * res
+    for i in range(0, n):
+        term = x[i]*x[i+1]
+        prod = 1
+        for j in range(0, math.floor((n-i-3)/2)+1):
+            prod = x[2*j+3+i] * prod
+        term = term * prod
+        res = term + res
     return res
 
 
@@ -26,7 +25,7 @@ def carry(x,i):
 
     return fun.simplify(fun.FA_cout(x[i], x[i-1], carry(x, i-1)))
 
-n = 2
+n = 9
 
 x = [cpl.Proposition() for i in range(n+1)]
 
@@ -34,5 +33,7 @@ actual = carry(x,n)
 g = guess(n)
 
 print(n)
+print("actual")
 print(actual)
+print("guess")
 print(g)

@@ -103,6 +103,9 @@ class Literal:
         return hash( (self.__proposition, self.__negated) )
 
     def __mul__(self, other):
+        if isinstance(other, int):
+            if other == 1:
+                return self
         if isinstance(other, Literal):
             return Conjunction(self, other)
 
@@ -187,6 +190,9 @@ class Conjunction:
         return self.__literals == other.literals
 
     def __mul__(self, other):
+        if isinstance(other, int):
+            if other == 1:
+                return self
         if isinstance(other, Literal):
             l = list(self.__literals)
             l.append(other)
@@ -307,6 +313,11 @@ class DNF:
         return not self.__lt__(self, other)
 
     def __add__(self, other):
+
+        if isinstance(other, int):
+            if other == 0:
+                return self
+
         if isinstance(other, DNF):
             c = set(self.__conjunctions).union(set(other.conjunctions))
             c = list(c)
@@ -328,6 +339,10 @@ class DNF:
 
 
     def __mul__(self, other):
+
+        if isinstance(other, int):
+            if other == 1:
+                return self
 
         if isinstance(other, Literal) or isinstance(other, Proposition) or isinstance(other, Conjunction):
             list_ = []
