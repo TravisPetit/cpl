@@ -1,4 +1,5 @@
 import cpl
+import math
 from random import random, randint, choice
 import qm
 
@@ -93,6 +94,20 @@ def random_formula(chance=0.70):
 
     return x
 
+
+def TTcarry(n):
+    x = [cpl.Proposition(index=i) for i in range(n+1)]
+    res = 0
+    for i in range(0, n):
+        term = x[i]*x[i+1]
+        prod = 1
+        for j in range(0, math.floor((n-i-3)/2)+1):
+            prod = x[2*j+3+i] * prod
+        term = term * prod
+        res = term + res
+    return res
+
+
 # n = number of digits
 def TT(n):
     if n == 1:
@@ -115,23 +130,28 @@ def TT(n):
 
     for i in range(2, len(x)):
         digit = simplify(FA_sum(x[i], x[i-1], carry))
-        carry = simplify(FA_cout(x[i-1], x[i-2], carry))
+        carry = TTcarry(i)
         res.append(digit)
 
-    carry = simplify(FA_cout(x[-2], x[-3], carry))
-    res.append(simplify(HA_sum(x[-1], carry)))
-    res.append(simplify(HA_cout(x[-1], carry)))
+    res.append(simplify(HA_sum(x[-1], TTcarry(n-1))))
+    res.append(simplify(HA_cout(x[-1], TTcarry(n-1))))
 
     return res
 
 
-def number_to_interpretation(n):
+def number_to_interpretation(n, bound):
     q = str(bin(n))[2:][::-1]
-    x = [cpl.Proposition(index=i) for i in range(len(q))]
+    bound_len = len(str(bin(bound))[2:])
+
+    #x = [cpl.Proposition(index=i) for i in range(len(q))]
+    x = [cpl.Proposition(index=i) for i in range(bound_len)]
     dict_ = {}
 
     for i in range(len(q)):
         dict_[x[i]] = (q[i] == "1")
+
+    for j in range(len(q), bound_len):
+        dict_[x[j]] = False
 
     return cpl.Interpretation(dict_)
 
@@ -199,3 +219,41 @@ def simplify(formula):
     rober_terms = qm.qm(ones=ones)
     newfor = robert_to_travis(rober_terms, formula.indexes_involved)
     return newfor
+
+
+def asmatrix(formula):
+    """ only works for DNF """
+    mat = []
+    for conjunction in formula.conjunctions:
+        row = []
+
+        for i in range(max(formula.indexes_involved)+1):
+            for literal in conjunction.literals:
+                skip = False
+                if literal.indexes_involved[0] == i:
+                    if literal.negated:
+                        row.append(-1)
+                    else:
+                        row.append(1)
+                    skip = True
+                    break
+            if skip:
+                continue
+            else:
+                row.append(0)
+        mat.append(row)
+
+    return mat
+
+def pretty_matrix(mat):
+    tmp = ""
+    for row in mat:
+        for el in row:
+            if el == -1:
+                tmp += "-1 "
+            elif el == 1:
+                tmp += " 1 "
+            elif el == 0:
+                tmp += " 0 "
+        tmp += "\n"
+    return tmp
