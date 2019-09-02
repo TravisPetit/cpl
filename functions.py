@@ -1,6 +1,7 @@
 import cpl
 import math
 from random import random, randint, choice
+from copy import deepcopy
 import qm
 
 HA_sum = lambda x,y : (-x)*y + x*(-y)
@@ -108,8 +109,42 @@ def TTcarry(n):
     return res
 
 
+def TTcarry_negated(n):
+    x = [cpl.Proposition(index=i) for i in range(n+1)]
+    if n == 1:
+        return (-x[0]) + (-x[1])
+    if n == 2:
+        return (-x[1]) + ( (-x[0]) * (-x[2]) )
+
+    term1 = 1
+    for k in range(math.floor(n/2)+1):
+        term1 = (-x[2*k]) * term1
+
+    term2_part1 = 1
+    for k in range(1, math.floor(n/2)+1):
+        term2_part1 = (-x[2*k]) * term2_part1
+
+    term2_part2 = 1
+    for k in range(1, math.floor((n+1)/2)):
+        term2_part2 = (-x[2*k+1]) * term2_part2
+
+    term2 = (-x[1]) * (term2_part1 + term2_part2)
+
+    term3 = 0
+    for k in range(2, n):
+        tmp = 1
+        for l in range(0, math.floor((n-k-3)/2) + 1):
+            tmp = (-x[2*l+3+k]) * tmp
+
+        tmp = (-x[k])*(-x[k+1]) * tmp
+
+        term3 = tmp + term3
+
+    return term1 + term2 + term3
+
+
 # n = number of digits
-def TT(n):
+def TTslow(n):
     if n == 1:
         return [cpl.Proposition(index=0), cpl.Proposition(index=0)]
 
@@ -122,7 +157,7 @@ def TT(n):
         z2 = simplify(HA_sum(x1, HA_cout(x0,x1)))
         z3 = simplify(HA_cout(x1, HA_cout(x0,x1)))
 
-        return [z3,z2,z1,z0]
+        return [z0, z1, z2, z3]
 
     x = [cpl.Proposition(index=i) for i in range(n)]
     res = [x[0], HA_sum(x[1], x[0])]
@@ -137,6 +172,33 @@ def TT(n):
     res.append(simplify(HA_cout(x[-1], TTcarry(n-1))))
 
     return res
+
+
+def TT(n):
+    """ like TT_slow but faster """
+    x = [cpl.Proposition(index=i) for i in range(n)]
+
+    if n == 1:
+        return [x[0], x[0]]
+
+    if n == 2:
+        x0 = x[0]
+        x1 = x[1]
+
+        z0 = x0
+        z1 = HA_sum(x0, x1)
+        z2 = simplify(HA_sum(x1, HA_cout(x0,x1)))
+        z3 = simplify(HA_cout(x1, HA_cout(x0,x1)))
+
+        return [z0, z1, z2, z3]
+
+    term1 = [x[0], HA_sum(x[1], x[0])]
+    #term2 = [FA_sum(x[i], x[i-1], TTcarry(i)) for i in range(2,n)]
+    #TTcarry(n)*( (-x)*(-y) + x*y ) + TTcarry_negated(n)*( (-x)*y + x*(-y) )
+    term2 = [TTcarry(i)*( (-x[i]) * (-x[i-1]) ) + TTcarry_negated(i)*( (-x[i])*x[i-1] + x[i]*(-x[i-1]) ) for i in range(2,n)]
+    term3 = [HA_sum(x[-1], TTcarry(n-1)), HA_cout(x[-1], TTcarry(n-1))]
+
+    return term1 + term2 + term3
 
 
 def number_to_interpretation(n, bound):
@@ -186,7 +248,7 @@ def minterms(formula):
     return terms
 
 
-def bitcount(n):
+def onescount(n):
     count = 0
     while n > 0:
         count += 1
@@ -257,3 +319,34 @@ def pretty_matrix(mat):
                 tmp += " 0 "
         tmp += "\n"
     return tmp
+
+
+def split_matrix(mat):
+    ones = deepcopy(mat)
+    minus_ones = deepcopy(mat)
+
+    for i in range(len(mat)):
+        for j in range(len(mat[i])):
+            if minus_ones[i][j] == 1: minus_ones[i][j] = 0
+            if ones[i][j] == -1: ones[i][j] = 0
+
+    return minus_ones, ones
+
+
+def count_propositions(formula):
+    dic = {}
+    for index in formula.indexes_involved:
+        dic[index] = 0
+    for conjunction in formula.conjunctions:
+        for literal in conjunction.literals:
+            dic[literal.indexes_involved[0]] += 1
+
+    return dic
+
+
+def len_binary_digits(num):
+    return len(str(bin(num))[2:])
+
+
+def fast_FA_sum(x, y, n):
+    return TTcarry(n)*( (-x)*(-y) + x*y ) + TTcarry_negated(n)*( (-x)*y + x*(-y) )

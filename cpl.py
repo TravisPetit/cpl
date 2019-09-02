@@ -335,7 +335,7 @@ class DNF:
         if isinstance(other, Conjunction):
             return other + self
 
-        raise Exception("TODO DNF {}".format(type(other)))
+        raise Exception("TODO DNF {} {}".format(type(other), other))
 
 
     def __mul__(self, other):
