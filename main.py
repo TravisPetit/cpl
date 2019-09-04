@@ -5,6 +5,7 @@ import math
 
 
 #Currently NOT woking for 7!!!!!!!!! probably because 7 is a 3 bit number
+
 for i in range(9):
     digits = fun.len_binary_digits(i)
 

@@ -10,6 +10,8 @@ HA_cout = lambda x,y : x*y
 FA_sum = lambda x,y,cin : (-x)*(-y)*cin + (-x)*y*(-cin) + x*(-y)*(-cin) + x*y*cin
 FA_cout = lambda x,y,cin : y*cin + x*cin + x*y
 
+fast_sum = lambda x, y, cin, neg : cin*( ((-x)*(-y)) + (x*y) ) + (neg)*( ((-x)*y) + (x*(-y)) )
+
 def possible_interpretations(*indexes):
     indexes = set(indexes)
     propositions = [cpl.Proposition(index=indx) for indx in indexes]
@@ -193,11 +195,8 @@ def TT(n):
         return [z0, z1, z2, z3]
 
     term1 = [x[0], HA_sum(x[1], x[0])]
-    #term2 = [FA_sum(x[i], x[i-1], TTcarry(i)) for i in range(2,n)] bad
-    #TTcarry(n)*( (-x)*(-y) + x*y ) + TTcarry_negated(n)*( (-x)*y + x*(-y) ) bad
-    term2 = [TTcarry(i)*( (-x[i]) * (-x[i-1]) ) + TTcarry_negated(i)*( (-x[i])*x[i-1] + x[i]*(-x[i-1]) ) for i in range(2,n)]
+    term2 = [fast_sum(x[i], x[i-1], TTcarry(i-1), TTcarry_negated(i-1)) for i in range(2,n)]
     term3 = [HA_sum(x[-1], TTcarry(n-1)), HA_cout(x[-1], TTcarry(n-1))]
-
 
     return term1 + term2 + term3
 
