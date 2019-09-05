@@ -12,6 +12,8 @@ FA_cout = lambda x,y,cin : y*cin + x*cin + x*y
 
 fast_sum = lambda x, y, cin, neg : cin*( ((-x)*(-y)) + (x*y) ) + (neg)*( ((-x)*y) + (x*(-y)) )
 
+TERM1 = lambda x, y, cin : cin*( ((-x)*(-y)) + (x*y) )
+
 def possible_interpretations(*indexes):
     indexes = set(indexes)
     propositions = [cpl.Proposition(index=indx) for indx in indexes]
@@ -346,7 +348,3 @@ def count_propositions(formula):
 
 def len_binary_digits(num):
     return len(str(bin(num))[2:])
-
-
-def fast_FA_sum(x, y, n):
-    return TTcarry(n)*( (-x)*(-y) + x*y ) + TTcarry_negated(n)*( (-x)*y + x*(-y) )

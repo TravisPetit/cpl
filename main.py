@@ -4,26 +4,31 @@ import qm
 import math
 
 
-#Currently NOT woking for 7!!!!!!!!! probably because 7 is a 3 bit number
+# not working
+def guess(n):
+    x = [cpl.Proposition(index=i) for i in range(n+1)]
 
-for i in range(9):
-    digits = fun.len_binary_digits(i)
+    res = 0
+    for k in range(n-1):
+        term1 = x[k]*x[k+1]
+        term2 = 1
+        for l in range(math.floor((n-k-5)/2)-k+1): #+1 porque el ultimo no cuenta
+            term2 = x[2*l+k] * term2
+        term3 = x[n-1] * ((-1) ** (n-k)) * x[n] * ((-1) ** (n-k))
+        intermediate = term1 * term2 * term3
+        res = intermediate + res
 
-    #inter = fun.number_to_interpretation(i, fun.len_binary_digits(i*3))
-    inter = fun.number_to_interpretation(i, 100)
+    return res
 
-    t3 = fun.TT(digits)
-    #t3 = fun.TTslow(digits)
 
-    result = fun.formula_interpretation_to_number(inter, t3)
+n = 10
+x = [cpl.Proposition(index=i) for i in range(n)]
 
-    print(result)
-
-    #if i == 0:
-    #    continue
-    #ori = fun.TTcarry(i)
-    #neg = fun.TTcarry_negated(i)
-
-    #for interpretation in fun.possible_interpretations(*[a for a in range(i+1)]):
-    #    if (interpretation.evaluate(ori) == interpretation.evaluate(neg)):
-    #        print("bad")
+for i in range(2, n):
+    formula = fun.TERM1(x[i], x[i-1], fun.TTcarry(i-1))
+    sf = fun.simplify(formula)
+    #print(formula)
+    print(i)
+    print(sf)
+    print(guess(i))
+    print("----------")
