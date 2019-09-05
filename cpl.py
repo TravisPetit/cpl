@@ -106,6 +106,9 @@ class Literal:
         if isinstance(other, int):
             if other == 1:
                 return self
+            if other == -1:
+                return -self
+
         if isinstance(other, Literal):
             return Conjunction(self, other)
 
@@ -193,6 +196,9 @@ class Conjunction:
         if isinstance(other, int):
             if other == 1:
                 return self
+            if other == -1:
+                return -self
+
         if isinstance(other, Literal):
             l = list(self.__literals)
             l.append(other)
@@ -343,6 +349,8 @@ class DNF:
         if isinstance(other, int):
             if other == 1:
                 return self
+            if other == -1:
+                return -self
 
         if isinstance(other, Literal) or isinstance(other, Proposition) or isinstance(other, Conjunction):
             list_ = []
